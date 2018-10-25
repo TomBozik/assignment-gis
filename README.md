@@ -20,8 +20,14 @@ Build a map-based application, which lets the user see geo-based data on a map a
 
 Fill in (either in English, or in Slovak):
 
-**Application description**: `<fill in>`
+**Application description**: Webova aplikacia na zobrazenie a filtrovanie lyziarskych stredisk na Slovensku.
+* Filtrovanie podla zlozitosti svahu.
+* Filtrovanie podla toho co sa v stredisku nachadza (snowpark, ihrisko...).
+* Filtrovanie podla toho ci sa v oblasti nachadza pozicovna lyzi.
+* Najdenie lyziarskych stredisk vo vybranom okruhu (moznost nastavenia velkosti)
+* Najdenie hotelov, alebo chat v okoli stredisk ktore sa nachadzaju v  oblasti (moznost nastavenia max. vzdialenost od strediska).
+* Filtrovanie podla vysky snehu v stredisku - SHMU data (web scraping).
 
-**Data source**: `<fill in>`
+**Data source**: [Open Street Maps](https://www.openstreetmap.org/), [SHMU - snehove spravy](http://www.shmu.sk/sk/?page=68)
 
-**Technologies used**: `<fill in>`
+**Technologies used**: Python - Flask, JS - Mapbox.
