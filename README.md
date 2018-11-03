@@ -25,6 +25,7 @@ Fill in (either in English, or in Slovak):
 * Najdenie lyziarskych stredisk vo vybranom okruhu (moznost nastavenia velkosti)
 * Najdenie hotelov, alebo chat v okoli stredisk ktore sa nachadzaju v  oblasti (moznost nastavenia max. vzdialenost od strediska).
 * Filtrovanie podla vysky snehu v stredisku - SHMU data (web scraping).
+* Zobrazenie heatmapy (sneh).
 
 **Data source**: [Open Street Maps](https://www.openstreetmap.org/), [SHMU - snehove spravy](http://www.shmu.sk/sk/?page=68)
 
