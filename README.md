@@ -21,11 +21,11 @@ Build a map-based application, which lets the user see geo-based data on a map a
 Fill in (either in English, or in Slovak):
 
 **Application description**: Webova aplikacia na zobrazenie a filtrovanie lyziarskych stredisk na Slovensku.
-* Filtrovanie podla zlozitosti svahu.
-* Najdenie lyziarskych stredisk vo vybranom okruhu (moznost nastavenia velkosti)
-* Najdenie hotelov, alebo chat v okoli stredisk ktore sa nachadzaju v  oblasti (moznost nastavenia max. vzdialenost od strediska).
-* Filtrovanie podla vysky snehu v stredisku - SHMU data (web scraping).
-* Zobrazenie heatmapy (sneh).
+* Filtrovanie podľa typu lanovky.
+* Nájdenie lyžiarských stredísk vo vybranom okruhu (možnosť nastavenia okruhu).
+* Nájdenie hotelov, alebo chát v okolí stredísk ktoré sa nachádzajú v oblasti (možnosť nastavenia max. vzdialenosti od strediska).
+* Filtrovanie podľa výšky snehu v stredisku (dáta zo SHMU pomocou web scraping).
+* Zobrazenie snehovej heatmapy.
 
 **Data source**: [Open Street Maps](https://www.openstreetmap.org/), [SHMU - snehove spravy](http://www.shmu.sk/sk/?page=68)
 

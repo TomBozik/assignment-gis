@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+
+    <meta charset="utf-8">
+    <title>Lyziarske strediska</title>
+
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <script src='https://api.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.css' rel='stylesheet' />
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="static/css/css.css"/>
+
+  </head>
+  <body>
+
+    <div class="container-fluid fill">
+      <div class="row fill">
+
+        <!-- LEFT MENU  -->
+        <div id="menu_cont" class="col-sm-2 fill-height text-center ">
+
+          <div class="row">
+            <div class="col-md-offset-1 col-md-12">
+              <h1>Strediska</h1>
+            </div>
+          </div>
+          <!--  FORMULAR  -->
+          <form action="/filter" method="post" role="form">
+            <div class="row">
+              <div class="col-md-offset-1 col-md-12">
+                Vzdialenosť stredísk (km)
+                <input type="range" class="custom-range" id="centerRangeInput" name="center_range" min="1", max="500", value="50", oninput="centerAmount.value=centerRangeInput.value">
+                <output name="centerAmount" id="centerAmount" for="centerRangeInput">50</output>
+                <hr size="1">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-offset-3 col-md-12">
+                Vzdialenosť hotelov od stredísk (km)
+                <input type="range" class="custom-range" id="hotelRangeInput" name="hotel_range" min="1", max="30", value="2", oninput="hotelAmount.value=hotelRangeInput.value">
+                <output name="hotelAmount" id="hotelAmount" for="hotelRangeInput">2</output>
+                <hr size="1">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-offset-1 col-md-12">
+                Min. výška snehu (cm)
+                <input type="range" class="custom-range" id="snowRangeInput" name="snow_range" min="0", max="100", value="0", oninput="snowAmount.value=snowRangeInput.value", step="5">
+                <output name="snowAmount" id="snowAmount" for="snowRangeInput">0</output>
+                <hr size="1">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-offset-1 col-md-12">
+                Min. dĺžka lanoviek (m)
+                <input type="range" class="custom-range" id="lanovkaRangeInput" name="lanovka_range" min="0", max="5000", value="0", oninput="lanovkaAmount.value=lanovkaRangeInput.value", step="100">
+                <output name="lanovkaAmount" id="lanovkaAmount" for="lanovkaRangeInput">0</output>
+                <hr size="1">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-offset-1 col-md-12">
+                <h5>Typ lanovky</h5>
+                <div class="checkboxes" align="left" style="padding-left: 100px;">
+                  <input type="checkbox" name="aerialways" value="cable_car" checked>Cable Car<br>
+                  <input type="checkbox" name="aerialways" value="gondola" checked>Gondola<br>
+                  <input type="checkbox" name="aerialways" value="chair_lift" checked>Chair<br>
+                  <input type="checkbox" name="aerialways" value="drag_lift" checked>Drag<br>
+                  <input type="checkbox" name="aerialways" value="t-bar" checked>T-bar<br>
+                  <input type="checkbox" name="aerialways" value="j-bar" checked>J-bar<br>
+                  <input type="checkbox" name="aerialways" value="platter" checked>Platter<br>
+                  <input type="checkbox" name="aerialways" value="rope_tow" checked>Rope Tow<br>
+                  <input type="checkbox" name="aerialways" value="magic_carpet" checked>Magic Carpet<br>
+                <br>
+                </div>
+                <hr size="1">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-offset-1 col-md-12">
+                <button class="btn" type="button">Najdi</button>
+              </div>
+            </div>
+          </form>
+          <!-- FORMULAR END  -->
+        </div>
+        <!-- LEFT MENU END -->
+
+        <div class="col-sm-10 fill-height">
+          <nav id="menu"></nav>
+          <div id='map'></div>
+          <pre id='coordinates' class='coordinates'></pre>
+        </div>
+
+      </div>
+    </div>
+
+    <script>
+
+      mapboxgl.accessToken = "{{ ACCESS_KEY }}"
+
+      //Vytvorenie mapy
+      var map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/basic-v9',
+        center: [19.45, 48.71],
+        zoom: 7.6
+      });
+
+      //Suradnice okolo ktorych sa budu hladat hotely/strediska
+      var coordinates = document.getElementById('coordinates');
+      var canvas = map.getCanvasContainer();
+
+      // Bod okolo ktoreho sa budu hladat hotely/strediska
+      var pin_point = {
+        "type": "FeatureCollection",
+        "features": [{
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [19.59077506059478, 48.821080079638506]
+            }
+        }]
+      };
+
+      //hybanie s cervenym bodom
+      function onMove(e) {
+        var coords = e.lngLat;
+        canvas.style.cursor = 'grabbing';
+        pin_point.features[0].geometry.coordinates = [coords.lng, coords.lat];
+        map.getSource('pin_point').setData(pin_point);
+      }
+
+      //pustenie cerveneho bodu
+      function onUp(e) {
+          var coords = e.lngLat;
+          coordinates.style.display = 'block';
+          coordinates.innerHTML = 'Longitude: ' + coords.lng + '<br />Latitude: ' + coords.lat;
+          canvas.style.cursor = '';
+
+          // Unbind mouse/touch events
+          map.off('mousemove', onMove);
+          map.off('touchmove', onMove);
+      }
+
+
+
+      map.on('load', function() {
+
+        //zdroj cerveny bod
+        map.addSource('pin_point', {
+        "type": "geojson",
+        "data": pin_point
+        });
+
+        //pridanie vrstvy s cervenym bodom
+        map.addLayer({
+            "id": "pin_point",
+            "type": "circle",
+            "source": "pin_point",
+            "paint": {
+                "circle-radius": 10,
+                "circle-color": "#ff0000"
+            }
+        });
+
+        //zdroj hotely
+        map.addSource('hotels', {
+        "type": "geojson",
+        "data": JSON.parse('{{ geojson_hotels|safe }}'),
+        cluster: true,
+        clusterMaxZoom: 14,
+        clusterRadius: 40
+        });
+
+        //zdroj rezorty
+        map.addSource("ski_resorts", {
+            type: "geojson",
+            data: JSON.parse('{{ geojson|safe }}'),
+            cluster: true,
+            clusterMaxZoom: 14,
+            clusterRadius: 40
+        });
+
+        //vrstva s rezortmi
+        map.addLayer({
+            "id": "ski_resorts",
+            "type": "symbol",
+            "source": "ski_resorts",
+            "filter": ["!has", "point_count"],
+            "layout": {
+                "icon-image": "marker-15",
+            }
+        });
+
+        //vtstva s hotelmi
+        map.addLayer({
+            "id": "hotels",
+            "type": "symbol",
+            "source": "hotels",
+            "filter": ["!has", "point_count"],
+            "layout": {
+                "icon-image": "lodging-15",
+            }
+        });
+
+        //vrstva so zhlukmi rezortov
+        map.addLayer({
+          id: "ski_resorts_clusters",
+          type: "circle",
+          source: "ski_resorts",
+          filter: ["has", "point_count"],
+          paint: {
+              "circle-color": [ "step", ["get", "point_count"], "#51bbd6", 100, "#f1f075",750, "#f28cb1" ],
+              "circle-radius": [ "step",["get", "point_count"], 20, 100, 30, 750, 40 ]
+          }
+        });
+
+
+        //vrstva so zhlukmi hotelov
+        map.addLayer({
+          id: "clusters_hotels",
+          type: "circle",
+          source: "hotels",
+          filter: ["has", "point_count"],
+          paint: {
+              "circle-color": [ "step", ["get", "point_count"], "#42f450", 50, "#f1f075", 100, "#f28cb1" ],
+              "circle-radius": [ "step", ["get", "point_count"], 15, 50, 20, 100, 25 ]
+          }
+        });
+
+        //vrstva pre pocet hotelov v zhluku (cislo v kruzku)
+        map.addLayer({
+            "id": "cluster_count_hotels",
+            "type": "symbol",
+            "source": "hotels",
+            "layout": {
+                "text-field": "{point_count}",
+                "text-font": [
+                    "DIN Offc Pro Medium",
+                    "Arial Unicode MS Bold"
+                ],
+                "text-size": 12
+            }
+        });
+
+
+        //vrstva pre pocet rezortov v zhluku (cislo v kruzku)
+        map.addLayer({
+            "id": "cluster_count_ski_resorts",
+            "type": "symbol",
+            "source": "ski_resorts",
+            "layout": {
+                "text-field": "{point_count}",
+                "text-font": [
+                    "DIN Offc Pro Medium",
+                    "Arial Unicode MS Bold"
+                ],
+                "text-size": 12
+            }
+        });
+
+        //zdroj pre heatmapu
+        map.addSource("ski_resorts2", {
+            type: "geojson",
+            data: JSON.parse('{{ geojson|safe }}'),
+        });
+
+       //  //vrstva s heatmapou
+       map.addLayer({
+         "id": "heatmap",
+           "type": "heatmap",
+           "source": "ski_resorts2",
+           "paint": {
+             "heatmap-radius": {
+               "base": 10,
+               "stops": [
+                 [10,50],
+                 [19,100]
+               ]
+             },
+             "heatmap-intensity": [
+               "interpolate",
+               ["linear"],
+               ["zoom"],
+               0, 4,
+               10, 5
+             ],
+             "heatmap-opacity": [
+                         "interpolate",
+                         ["linear"],
+                         ["zoom"],
+                         7, 1,
+                         11, 0
+                     ],
+             'heatmap-weight': {
+               property: 'snow',
+               type: 'exponential',
+               stops: [
+                 [1, 0],
+                 [100, 1]
+               ]
+             },
+           }
+        });
+
+        //skrytie vrstvy s hotelmi, zhlukmi hotelov a poctom v zhlukoch (pri nacitani mapy sa zobrazia iba lyziarske strediska)
+        map.setLayoutProperty("hotels", 'visibility', 'none');
+        map.setLayoutProperty("clusters_hotels", 'visibility', 'none');
+        map.setLayoutProperty("cluster_count_hotels", 'visibility', 'none');
+        //skrytie heat mapy
+        map.setLayoutProperty("heatmap", 'visibility', 'none');
+
+      });
+
+      //kliknutie na rezort
+      map.on('click', 'ski_resorts', function (e) {
+          var features = map.queryRenderedFeatures(e.point, { layers: ['ski_resorts'] });
+          map.getCanvas().style.cursor = (features.length) ? 'pointer' : '';
+
+          if (!features.length) {
+              return;
+          }
+
+          var feature = features[0];
+
+          //pridaj popup (informacie o rezorte)
+          var popup = new mapboxgl.Popup()
+          .setLngLat(feature.geometry.coordinates)
+          .setHTML('<h3>' + feature.properties.name + '</h3><p>Sneh: ' + feature.properties.snow+' cm </p>' + '</h3><p>Lanovky: ' + feature.properties.aerialways_length + ' m </p></h3>')
+          .addTo(map);
+      });
+
+      //kliknutie na hotel - nejde spojit viacero vrstiev do jedneho map.on ...
+      map.on('click', 'hotels', function (e) {
+          var features = map.queryRenderedFeatures(e.point, { layers: ['hotels'] });
+          map.getCanvas().style.cursor = (features.length) ? 'pointer' : '';
+
+          if (!features.length) {
+              return;
+          }
+
+          var feature = features[0];
+
+          //pridaj popup (informacie o hotely)
+          var popup = new mapboxgl.Popup()
+          .setLngLat(feature.geometry.coordinates)
+          .setHTML('<h3>' + feature.properties.name + '</h3>')
+          .addTo(map);
+      });
+
+
+      //kliknutie na zhluk rezortov - priblizenie
+      map.on('click', 'ski_resorts_clusters', function (e) {
+          var features = map.queryRenderedFeatures(e.point, { layers: ['ski_resorts_clusters'] });
+          var clusterId = features[0].properties.cluster_id;
+          map.getSource('ski_resorts').getClusterExpansionZoom(clusterId, function (err, zoom) {
+              if (err)
+                  return;
+
+              map.easeTo({
+                  center: features[0].geometry.coordinates,
+                  zoom: zoom
+              });
+          });
+      });
+
+      //kliknutie na zhluk hotelov - priblizenie
+      map.on('click', 'clusters_hotels', function (e) {
+          var features = map.queryRenderedFeatures(e.point, { layers: ['clusters_hotels'] });
+          var clusterId = features[0].properties.cluster_id;
+          map.getSource('hotels').getClusterExpansionZoom(clusterId, function (err, zoom) {
+              if (err)
+                  return;
+
+              map.easeTo({
+                  center: features[0].geometry.coordinates,
+                  zoom: zoom
+              });
+          });
+      });
+
+
+      //funkcie ktore zmenia kurzor pri vstupe/odchode z: rezortu, hotela, zhluku rezortov, zhluku hotelov
+
+      map.on('mouseenter', 'ski_resorts_clusters', function () {
+          map.getCanvas().style.cursor = 'pointer';
+      });
+      map.on('mouseenter', 'clusters_hotels', function () {
+          map.getCanvas().style.cursor = 'pointer';
+      });
+
+      map.on('mouseleave', 'ski_resorts_clusters', function () {
+          map.getCanvas().style.cursor = '';
+      });
+      map.on('mouseleave', 'clusters_hotels', function () {
+          map.getCanvas().style.cursor = '';
+      });
+
+      map.on('mouseenter', 'ski_resorts', function () {
+          map.getCanvas().style.cursor = 'pointer';
+      });
+      map.on('mouseenter', 'hotels', function () {
+          map.getCanvas().style.cursor = 'pointer';
+      });
+
+      map.on('mouseleave', 'ski_resorts', function () {
+          map.getCanvas().style.cursor = '';
+      });
+      map.on('mouseleave', 'hotels', function () {
+          map.getCanvas().style.cursor = '';
+      });
+
+
+      //zmena kurzoru pri vstupe, odchode, stlaceni cerveneho bodu
+      map.on('mouseenter', 'pin_point', function() {
+          map.setPaintProperty('pin_point', 'circle-color', '#b20000');
+          canvas.style.cursor = 'move';
+      });
+
+      map.on('mouseleave', 'pin_point', function() {
+          map.setPaintProperty('pin_point', 'circle-color', '#ff0000');
+          canvas.style.cursor = '';
+      });
+
+      map.on('mousedown', 'pin_point', function(e) {
+          // Prevent the default map drag behavior.
+          e.preventDefault();
+
+          canvas.style.cursor = 'grab';
+
+          map.on('mousemove', onMove);
+          map.once('mouseup', onUp);
+      });
+
+      map.on('touchstart', 'pin_point', function(e) {
+          if (e.points.length !== 1) return;
+
+          // Prevent the default map drag behavior.
+          e.preventDefault();
+
+          map.on('touchmove', onMove);
+          map.once('touchend', onUp);
+      });
+
+
+      //kliknutie tlacitka na hladanie hotelov/stredisk
+      $(function() {
+        $('.btn').click(function() {
+
+          //ziskanie dat z formularu + pridanie informacie o cervenom bode
+          var $form = $('form');
+          var data = {
+            'red_point_pin_lat' : pin_point['features'][0]['geometry']['coordinates'][0],
+            'red_point_pin_lon' : pin_point['features'][0]['geometry']['coordinates'][1],
+          };
+          data = $form.serialize() + '&' + $.param(data);
+
+            //ziskanie novych dat
+            $.ajax({
+                url: '/filter',
+                data: data,
+                type: 'POST',
+
+                success: function(response) {
+                    var response = JSON.parse(response);
+
+                    //update zdrojov dat
+                    map.getSource('ski_resorts').setData(response['geojson']);
+                    map.getSource('hotels').setData(response['geojson_hotels']);
+                    map.getSource('ski_resorts2').setData(response['geojson']);
+                    console.log(response['geojson'])
+
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        });
+     });
+
+
+
+     //prepinanie medzi hotelmi a rezortmi
+     var toggleableLayerIds = [ 'ski_resorts', 'hotels' ];
+
+     for (var i = 0; i < toggleableLayerIds.length; i++) {
+        var id = toggleableLayerIds[i];
+
+        var link = document.createElement('a');
+        link.href = '#';
+
+        if(id=='hotels'){
+          link.className = 'unactive';
+        }else{
+          link.className = 'active';
+        }
+
+        link.textContent = id;
+
+        link.onclick = function (e) {
+            var clickedLayer = this.textContent;
+            e.preventDefault();
+            e.stopPropagation();
+
+            // ak som klikol na hotel a je neviditelny, zobraz hotel, zneviditelni centra
+            if (this.textContent == 'hotels' && this.className === 'unactive'){
+              this.className = 'active';
+              map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+              map.setLayoutProperty("clusters_hotels", 'visibility', 'visible');
+              map.setLayoutProperty("cluster_count_hotels", 'visibility', 'visible');
+
+              map.setLayoutProperty("ski_resorts", 'visibility', 'none');
+              map.setLayoutProperty("ski_resorts_clusters", 'visibility', 'none');
+              map.setLayoutProperty("cluster_count_ski_resorts", 'visibility', 'none');
+              document.getElementById('menu').querySelectorAll("a")[0].className = 'unactive';
+            }
+            // ak som klikol na stredisko a je neviditelny, zobraz stredisko, zneviditelni hotels
+            if (this.textContent == 'ski_resorts' && this.className === 'unactive'){
+              this.className = 'active';
+              map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+              map.setLayoutProperty("ski_resorts_clusters", 'visibility', 'visible');
+              map.setLayoutProperty("cluster_count_ski_resorts", 'visibility', 'visible');
+
+              map.setLayoutProperty("hotels", 'visibility', 'none');
+              map.setLayoutProperty("clusters_hotels", 'visibility', 'none');
+              map.setLayoutProperty("cluster_count_hotels", 'visibility', 'none');
+              document.getElementById('menu').querySelectorAll("a")[1].className = 'unactive';
+            }
+
+        };
+
+        var layers = document.getElementById('menu');
+        layers.appendChild(link);
+    }
+
+
+    // tlacitko na heatmapu
+    var link = document.createElement('a');
+    link.href = '#';
+    link.textContent = "snow heatmap";
+    link.className = 'unactive';
+    link.onclick = function(e){
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (this.className === 'unactive'){
+        this.className = 'active';
+        map.setLayoutProperty("heatmap", 'visibility', 'visible');
+      }else{
+        this.className = 'unactive';
+        map.setLayoutProperty("heatmap", 'visibility', 'none');
+      }
+    }
+    var layers = document.getElementById('menu');
+    layers.appendChild(link);
+
+  	</script>
+
+  </body>
+</html>
